@@ -65,7 +65,6 @@ public class Main {
 
         System.out.println("simulation complete");
         System.out.println("average response times = "+averageResponseTime);
-        System.out.println("average percent of packets dropped = "+ 100.0*(averagePacketsDropped/averagePacketsSent));
         System.out.println("average number of packets dropped = "+averagePacketsDropped);
         System.out.println("average number of packets sent = "+averagePacketsSent);
 

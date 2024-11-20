@@ -76,7 +76,7 @@ public class Network {
             while (randReceiver.equals(randSender)){
                 randReceiver = nodes.get(rand.nextInt(nodes.size()));
             }
-            NetProtocol protocol = new MUDP(tickNum);
+            NetProtocol protocol = new SUDP(tickNum);
             randSender.addProtocol(protocol);
             protocol.createInitMessage(randSender, randReceiver.getAddress(), rand.nextInt(1, 20));
         }

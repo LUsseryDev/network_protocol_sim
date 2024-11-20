@@ -74,6 +74,11 @@ public class Node {
         totalPackets++;
         return p;
     }
+    public Packet sendPacket(Packet p){
+        generatedPackets.add(p);
+        totalPackets++;
+        return p;
+    }
 
     //receive packet from an edge
     public void recv(Packet p, int tick){
