@@ -5,7 +5,7 @@ import java.util.Random;
 
 public class Edge {
     private static final int MAX_BANDWIDTH = 100, MAX_DISTANCE = 100;
-    private static final Random rand = new Random(System.currentTimeMillis());
+    private static final Random rand = new Random(System.currentTimeMillis()+2);
     private Node a, b;
     private final int bandwidth, distance;
     private ArrayList<PacketContainer> packetsToA, packetsToB;
@@ -21,18 +21,24 @@ public class Edge {
 
     public void onTick(int tick){
         //process each packet on the edge
+        ArrayList<PacketContainer> sent = new ArrayList<>();
         for(PacketContainer pc: packetsToA){
             pc.ticks_remaining -= 1;
             if (pc.ticks_remaining >= 0){
                 a.recv(pc.packet, tick);
+                sent.add(pc);
             }
         }
+        packetsToA.removeAll(sent);
+        sent.clear();
         for(PacketContainer pc: packetsToB){
             pc.ticks_remaining -= 1;
             if (pc.ticks_remaining >= 0){
                 b.recv(pc.packet, tick);
+                sent.add(pc);
             }
         }
+        packetsToB.removeAll(sent);
     }
 
     //receive a packet from a node, returns false if the packet is not taken.

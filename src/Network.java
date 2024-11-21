@@ -4,6 +4,8 @@ import java.util.Map;
 import java.util.Random;
 
 public class Network {
+    private static final Random rand = new Random(System.currentTimeMillis());
+
     ArrayList<Node> nodes;
     ArrayList<Edge> edges;
     int[][] adjMatrix;
@@ -13,7 +15,6 @@ public class Network {
     public Network(int numNodes, int numNewMessages){
         this.numNewMessages = numNewMessages;
         //find number of edges
-        Random rand = new Random(System.currentTimeMillis());
         int numEdges = rand.nextInt(numNodes-1, (numNodes*(numNodes-1))/2);
 
         //generate nodes in a spanning tree
@@ -68,7 +69,6 @@ public class Network {
     //function to process one tick
     public void onTick(int tickNum){
         //create messages
-        Random rand = new Random(System.currentTimeMillis());
         for (int i = 0; i < numNewMessages; i++) {
 
             Node randSender = nodes.get(rand.nextInt(nodes.size()));

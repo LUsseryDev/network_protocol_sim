@@ -14,7 +14,7 @@ public class SUDP implements NetProtocol{
     private ArrayList<Packet> toSend;
 
     public SUDP(int startTick){
-        id = getId++;
+        this.id = getId++;
         this.startTick = startTick;
         this.responseTime = 0;
         this.cwnd = cwndinit;
