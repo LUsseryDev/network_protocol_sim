@@ -3,7 +3,7 @@ public interface NetProtocol {
 
     public void respond(Packet p, Node n, int tick);
 
-    public void onTick();
+    public void onTick(int tickNum);
     public int getID();
 
     public int getResponseTime();

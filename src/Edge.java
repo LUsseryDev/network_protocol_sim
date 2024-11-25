@@ -4,7 +4,7 @@ import java.util.Random;
 
 
 public class Edge {
-    private static final int MAX_BANDWIDTH = 100, MAX_DISTANCE = 100;
+    private static final int MAX_BANDWIDTH = 100, MAX_DISTANCE = 10;
     private static final Random rand = new Random(System.currentTimeMillis()+2);
     private Node a, b;
     private final int bandwidth, distance;
@@ -13,8 +13,8 @@ public class Edge {
     public Edge(Node a, Node b){
         this.a = a;
         this.b = b;
-        bandwidth = rand.nextInt(1, 100);
-        distance = rand.nextInt(1, 10);
+        bandwidth = rand.nextInt(1, MAX_BANDWIDTH);
+        distance = rand.nextInt(1, MAX_DISTANCE);
         packetsToA = new ArrayList<>();
         packetsToB = new ArrayList<>();
     }

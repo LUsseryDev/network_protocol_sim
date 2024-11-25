@@ -48,6 +48,7 @@ public class Network {
         for(Node n: nodes){
             n.setPath(n.findPaths(adjMatrix, n.getAddress()));
         }
+
     }
     public int[][]to2dArray(){
         //if the graph isn't done, return null
@@ -84,7 +85,7 @@ public class Network {
 
         //process all nodes
         for(Node n: nodes){
-            n.onTick();
+            n.onTick(tickNum);
         }
         //process all edges
         for(Edge e: edges){

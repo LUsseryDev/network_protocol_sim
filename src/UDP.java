@@ -5,6 +5,8 @@ public class UDP implements NetProtocol{
     private static int getId = 0;
     private int startTick;
     private int responseTime;
+    private int datasize;
+    private ArrayList<Boolean> recived;
 
     public UDP(int startTick){
         id = getId++;
@@ -39,7 +41,7 @@ public class UDP implements NetProtocol{
     }
 
     @Override
-    public void onTick(){}
+    public void onTick(int tickNum){}
 
     @Override
     public int getID() {

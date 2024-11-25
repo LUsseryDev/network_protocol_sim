@@ -45,22 +45,22 @@ public class SUDP implements NetProtocol{
         switch (data[3]){
             case "REQUEST":
                 for (int i = 0; i < Integer.parseInt(data[2]); i++) {
-                    toSend.add(new Packet(STR."SUDP \{id} \{i} RESPONSE \{p.id}", p.dest, n.getAddress()));
+                    toSend.add(new Packet(STR."SUDP \{id} \{i} RESPONSE", p.orig, n.getAddress(), p.pid));
                 }
                 break;
             case "RESPONSE":
                 for(PacketTimer pt: sentPackets){
-                    if (Integer.parseInt(data[4]) == pt.packet.id){
+                    if (p.pid == pt.packet.pid){
                         sentPackets.remove(pt);
                         break;
                     }
                 }
-                n.genPacket(p.orig, STR. "SUDP \{id} \{1} ACK \{p.id}");
+                n.genPacket(p.orig, STR."SUDP \{id} \{1} ACK", p.pid);
                 responseTime = tick - startTick;
                 break;
             case "ACK":
                 for(PacketTimer pt: sentPackets){
-                    if (Integer.parseInt(data[4]) == pt.packet.id){
+                    if (p.pid == pt.packet.pid){
                         sentPackets.remove(pt);
                         break;
                     }
@@ -70,7 +70,7 @@ public class SUDP implements NetProtocol{
     }
 
     @Override
-    public void onTick(){
+    public void onTick(int tickNum){
         boolean t = false;
         for(PacketTimer pt: sentPackets){
             pt.ticks_remaining--;
@@ -79,6 +79,7 @@ public class SUDP implements NetProtocol{
                 ssthresh = cwnd/2;
                 cwnd = cwndinit;
                 t = true;
+                break;
             }
         }
         //if no timeouts
@@ -95,8 +96,9 @@ public class SUDP implements NetProtocol{
             if(toSend.isEmpty()){
                 break;
             }
-            hostNode.sendPacket(toSend.removeFirst());
-
+            Packet p = toSend.removeFirst();
+            hostNode.sendPacket(p);
+            sentPackets.add(new PacketTimer(p, tickNum+RTO));
         }
     }
 

@@ -32,7 +32,7 @@ public class Node {
         protocols = new ArrayList<>();
     }
 
-    public void onTick() {
+    public void onTick(int tickNum) {
         //attempt to move generated packets to buffer
         while(!generatedPackets.isEmpty() && buffer.size() < bufferSize){
             buffer.add(generatedPackets.getNext());
@@ -57,7 +57,7 @@ public class Node {
 
         //tick all the protocols
         for(NetProtocol np : protocols){
-            np.onTick();
+            np.onTick(tickNum);
         }
     }
 
@@ -122,7 +122,7 @@ public class Node {
                     sudp.respond(p, this, tick);
                     break;
             }
-
+            return;
         }
 
         //if buffer is full, drop the packet

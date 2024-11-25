@@ -6,6 +6,7 @@ public class MUDP implements NetProtocol{
     private int startTick;
     private int responseTime;
     private Node hostNode;
+    private boolean isRelay;
 
 
     public MUDP(int startTick){
@@ -17,6 +18,7 @@ public class MUDP implements NetProtocol{
         this.id = id;
         this.startTick = startTick;
         this.responseTime = 0;
+        this.isRelay = false;
 
     }
     @Override
@@ -43,18 +45,20 @@ public class MUDP implements NetProtocol{
                 break;
             case"FOWARD_REQUEST":
                 n.genPacket(Integer.parseInt(data[4]),STR."MUDP \{id} \{data[2]} REQUEST");
+                this.isRelay = true;
                 break;
             case "RESPONSE":
                 responseTime = tick - startTick;
                 break;
             case "FOWARD_RESPONSE":
                 n.genPacket(Integer.parseInt(data[4]),STR."MUDP \{id} \{data[2]} RESPONSE");
+                this.isRelay = true;
                 break;
         }
     }
 
     @Override
-    public void onTick(){}
+    public void onTick(int tickNum){}
 
     @Override
     public int getID() {
