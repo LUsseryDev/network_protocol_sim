@@ -47,6 +47,7 @@ public class Main {
 
         //run the sim
         int averagePacketsSent = 0, averagePacketsDropped = 0, averageResponseTime = 0;
+        double averagePacketLoss = 0;
         for (int i = 0; i < numRuns; i++) {
             System.out.println("Starting simulation "+i);
             Network network = new Network(numNodes, numNewMessages);
@@ -57,14 +58,17 @@ public class Main {
             averageResponseTime += network.getAvrResponseTime();
             averagePacketsDropped += network.getPacketsDropped();
             averagePacketsSent += network.getTotalPackets();
+            averagePacketLoss += network.getAvrLoss();
             Network.reset();
         }
         averageResponseTime = averageResponseTime/numRuns;
         averagePacketsDropped = averagePacketsDropped/numRuns;
         averagePacketsSent = averagePacketsSent/numRuns;
+        averagePacketLoss = averagePacketLoss/numRuns;
 
         System.out.println("simulation complete");
         System.out.println("average response times = "+averageResponseTime);
+        System.out.println("average packet loss is "+averagePacketLoss+"%");
         System.out.println("average number of packets dropped = "+averagePacketsDropped);
         System.out.println("average number of packets sent = "+averagePacketsSent);
 

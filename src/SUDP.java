@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class SUDP implements NetProtocol{
     private final int id;
@@ -12,6 +13,9 @@ public class SUDP implements NetProtocol{
     private final static int RTO = 30;
     private ArrayList<PacketTimer> sentPackets;
     private ArrayList<Packet> toSend;
+    private int datasize;
+    private ArrayList<Boolean> recived;
+
 
     public SUDP(int startTick){
         this.id = getId++;
@@ -35,6 +39,8 @@ public class SUDP implements NetProtocol{
     public void createInitMessage(Node n, int destAddress, int dataSize) {
         toSend.add(new Packet(STR."SUDP \{id} \{dataSize} REQUEST", destAddress, n.getAddress()));
         hostNode = n;
+        this.datasize = dataSize;
+        this.recived = new ArrayList<Boolean>(Collections.nCopies(dataSize, false));
     }
 
     @Override
@@ -49,6 +55,7 @@ public class SUDP implements NetProtocol{
                 }
                 break;
             case "RESPONSE":
+                recived.set(Integer.parseInt(data[2]), true);
                 for(PacketTimer pt: sentPackets){
                     if (p.pid == pt.packet.pid){
                         sentPackets.remove(pt);
@@ -56,7 +63,9 @@ public class SUDP implements NetProtocol{
                     }
                 }
                 n.genPacket(p.orig, STR."SUDP \{id} \{1} ACK", p.pid);
-                responseTime = tick - startTick;
+                if (responseTime == 0){
+                    responseTime = tick - startTick;
+                }
                 break;
             case "ACK":
                 for(PacketTimer pt: sentPackets){
@@ -98,7 +107,7 @@ public class SUDP implements NetProtocol{
             }
             Packet p = toSend.removeFirst();
             hostNode.sendPacket(p);
-            sentPackets.add(new PacketTimer(p, tickNum+RTO));
+            sentPackets.add(new PacketTimer(p, tickNum + RTO));
         }
     }
 
@@ -112,10 +121,25 @@ public class SUDP implements NetProtocol{
         return responseTime;
     }
 
+    @Override
+    public double getPacketLoss() {
+        if(recived == null){
+            return -1;
+        }
+        int sum = 0;
+        for(Boolean b:recived){
+            if (b){
+                sum++;
+            }
+        }
+        return (double) sum/datasize;
+    }
+
     public static void reset() {
         getId = 0;
     }
-    private class PacketTimer{
+
+    private static class PacketTimer{
         public Packet packet;
         public int ticks_remaining;
         public PacketTimer(Packet p, int ticks){

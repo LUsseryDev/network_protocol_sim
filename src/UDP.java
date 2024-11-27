@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 public class UDP implements NetProtocol{
     private final int id;
@@ -21,6 +23,8 @@ public class UDP implements NetProtocol{
     @Override
     public void createInitMessage(Node n, int destAddress, int dataSize) {
         n.genPacket(destAddress,STR."UDP \{id} \{dataSize} REQUEST");
+        this.datasize = dataSize;
+        this.recived = new ArrayList<Boolean>(Collections.nCopies(dataSize, false));
     }
 
     @Override
@@ -34,7 +38,11 @@ public class UDP implements NetProtocol{
                 }
                 break;
             case "RESPONSE":
-                responseTime = tick - startTick;
+                //record the packet being received
+                recived.set(Integer.parseInt(data[2]), true);
+                if (responseTime == 0){
+                    responseTime = tick - startTick;
+                }
                 break;
 
         }
@@ -51,6 +59,20 @@ public class UDP implements NetProtocol{
     @Override
     public int getResponseTime() {
         return responseTime;
+    }
+
+    @Override
+    public double getPacketLoss() {
+        if(recived == null){
+            return -1;
+        }
+        int sum = 0;
+        for(Boolean b:recived){
+            if (b){
+                sum++;
+            }
+        }
+        return (double) sum/datasize;
     }
 
     public static void reset() {

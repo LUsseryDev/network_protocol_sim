@@ -1,12 +1,13 @@
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class MUDP implements NetProtocol{
     private final int id;
     private static int getId = 0;
     private int startTick;
     private int responseTime;
-    private Node hostNode;
-    private boolean isRelay;
+    private int datasize;
+    private ArrayList<Boolean> recived;
 
 
     public MUDP(int startTick){
@@ -18,7 +19,6 @@ public class MUDP implements NetProtocol{
         this.id = id;
         this.startTick = startTick;
         this.responseTime = 0;
-        this.isRelay = false;
 
     }
     @Override
@@ -28,6 +28,8 @@ public class MUDP implements NetProtocol{
         if (alt != -1){
             n.genPacket(alt,STR."MUDP \{id} \{dataSize} FORWARD_REQUEST \{destAddress}" );
         }
+        this.datasize = dataSize;
+        this.recived = new ArrayList<Boolean>(Collections.nCopies(dataSize, false));
     }
 
     @Override
@@ -39,20 +41,21 @@ public class MUDP implements NetProtocol{
                 for (int i = 0; i < Integer.parseInt(data[2]); i++) {
                     n.genPacket(p.orig, STR."MUDP \{id} \{i} RESPONSE");
                     if (alt != -1){
-                        n.genPacket(alt,STR."MUDP \{id} \{data[2]} FORWARD_RESPONSE \{p.orig}" );
+                        n.genPacket(alt,STR."MUDP \{id} \{data[2]} FORWARD_RESPONSE \{p.orig}");
                     }
                 }
                 break;
             case"FOWARD_REQUEST":
                 n.genPacket(Integer.parseInt(data[4]),STR."MUDP \{id} \{data[2]} REQUEST");
-                this.isRelay = true;
                 break;
             case "RESPONSE":
-                responseTime = tick - startTick;
+                recived.set(Integer.parseInt(data[2]), true);
+                if (responseTime == 0){
+                    responseTime = tick - startTick;
+                }
                 break;
             case "FOWARD_RESPONSE":
                 n.genPacket(Integer.parseInt(data[4]),STR."MUDP \{id} \{data[2]} RESPONSE");
-                this.isRelay = true;
                 break;
         }
     }
@@ -68,6 +71,20 @@ public class MUDP implements NetProtocol{
     @Override
     public int getResponseTime() {
         return responseTime;
+    }
+
+    @Override
+    public double getPacketLoss() {
+        if(recived == null){
+            return -1;
+        }
+        int sum = 0;
+        for(Boolean b:recived){
+            if (b){
+                sum++;
+            }
+        }
+        return (double) sum/datasize;
     }
 
     public static void reset() {

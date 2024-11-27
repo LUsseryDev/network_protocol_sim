@@ -77,7 +77,7 @@ public class Network {
             while (randReceiver.equals(randSender)){
                 randReceiver = nodes.get(rand.nextInt(nodes.size()));
             }
-            NetProtocol protocol = new SUDP(tickNum);
+            NetProtocol protocol = new UDP(tickNum);
             randSender.addProtocol(protocol);
             protocol.createInitMessage(randSender, randReceiver.getAddress(), rand.nextInt(1, 20));
         }
@@ -115,6 +115,24 @@ public class Network {
         }
         return sum/numResponse;
 
+    }
+    public double getAvrLoss(){
+        ArrayList<NetProtocol> protocols = new ArrayList<>();
+        for(Node n: nodes){
+            protocols.addAll(n.getProtocols());
+        }
+        double sum = 0;
+        int numResponse = 0;
+        for(NetProtocol np: protocols){
+            if(np.getPacketLoss() != -1) {
+                sum += np.getPacketLoss();
+                numResponse++;
+            }
+        }
+        if(numResponse == 0){
+            return 0;
+        }
+        return sum/numResponse;
     }
     public static void reset(){
         Node.reset();
