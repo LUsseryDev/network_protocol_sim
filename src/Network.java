@@ -10,9 +10,10 @@ public class Network {
     ArrayList<Edge> edges;
     int[][] adjMatrix;
     int numNewMessages;
+    int udpNum, mudpNum, sudpNum;
 
 
-    public Network(int numNodes, int numNewMessages){
+    public Network(int numNodes, int numNewMessages, String ratios){
         this.numNewMessages = numNewMessages;
         //find number of edges
         int numEdges = rand.nextInt(numNodes-1, (numNodes*(numNodes-1))/2);
@@ -49,6 +50,11 @@ public class Network {
             n.setPath(n.findPaths(adjMatrix, n.getAddress()));
         }
 
+        //set ratios for each protocol
+        String[] ratioData = ratios.split(" ");
+        udpNum = Integer.parseInt(ratioData[0]);
+        mudpNum = Integer.parseInt(ratioData[1]);
+        sudpNum = Integer.parseInt(ratioData[2]);
     }
     public int[][]to2dArray(){
         //if the graph isn't done, return null
@@ -71,13 +77,26 @@ public class Network {
     public void onTick(int tickNum){
         //create messages
         for (int i = 0; i < numNewMessages; i++) {
-
             Node randSender = nodes.get(rand.nextInt(nodes.size()));
             Node randReceiver = nodes.get(rand.nextInt(nodes.size()));
             while (randReceiver.equals(randSender)){
                 randReceiver = nodes.get(rand.nextInt(nodes.size()));
             }
-            NetProtocol protocol = new UDP(tickNum);
+            NetProtocol protocol;
+            int temp = rand.nextInt(1, 101);
+            if (temp <= udpNum){
+                protocol = new UDP(tickNum);
+            }
+            else if (temp <= udpNum+mudpNum) {
+                protocol = new MUDP(tickNum);
+            }
+            else if (temp <= 100) {
+                protocol = new SUDP(tickNum);
+            }
+            else{
+                System.out.println("something went wrong");
+                return;
+            }
             randSender.addProtocol(protocol);
             protocol.createInitMessage(randSender, randReceiver.getAddress(), rand.nextInt(1, 20));
         }
@@ -98,25 +117,65 @@ public class Network {
     public int getPacketsDropped(){
         return Node.getDroppedPackets();
     }
-    public int getAvrResponseTime(){
+    public int getUDPAvrResponseTime(){
         ArrayList<NetProtocol> protocols = new ArrayList<>();
         for(Node n: nodes){
             protocols.addAll(n.getProtocols());
         }
         int sum = 0, numResponse = 0;
         for(NetProtocol np: protocols){
-            if(np.getResponseTime() != 0) {
-                sum += np.getResponseTime();
-                numResponse++;
+            if (np.getClass() == UDP.class) {
+                if (np.getResponseTime() != 0) {
+                    sum += np.getResponseTime();
+                    numResponse++;
+                }
             }
         }
         if(numResponse == 0){
             return 0;
         }
         return sum/numResponse;
-
     }
-    public double getAvrLoss(){
+    public int getMUDPAvrResponseTime(){
+        ArrayList<NetProtocol> protocols = new ArrayList<>();
+        for(Node n: nodes){
+            protocols.addAll(n.getProtocols());
+        }
+        int sum = 0, numResponse = 0;
+        for(NetProtocol np: protocols){
+            if (np.getClass() == MUDP.class) {
+                if (np.getResponseTime() != 0) {
+                    sum += np.getResponseTime();
+                    numResponse++;
+                }
+            }
+        }
+        if(numResponse == 0){
+            return 0;
+        }
+        return sum/numResponse;
+    }
+    public int getSUDPAvrResponseTime(){
+        ArrayList<NetProtocol> protocols = new ArrayList<>();
+        for(Node n: nodes){
+            protocols.addAll(n.getProtocols());
+        }
+        int sum = 0, numResponse = 0;
+        for(NetProtocol np: protocols){
+            if (np.getClass() == SUDP.class) {
+                if (np.getResponseTime() != 0) {
+                    sum += np.getResponseTime();
+                    numResponse++;
+                }
+            }
+        }
+        if(numResponse == 0){
+            return 0;
+        }
+        return sum/numResponse;
+    }
+
+    public double getUDPAvrLoss(){
         ArrayList<NetProtocol> protocols = new ArrayList<>();
         for(Node n: nodes){
             protocols.addAll(n.getProtocols());
@@ -124,9 +183,11 @@ public class Network {
         double sum = 0;
         int numResponse = 0;
         for(NetProtocol np: protocols){
-            if(np.getPacketLoss() != -1) {
-                sum += np.getPacketLoss();
-                numResponse++;
+            if (np.getClass() == UDP.class) {
+                if (np.getPacketLoss() != -1) {
+                    sum += np.getPacketLoss();
+                    numResponse++;
+                }
             }
         }
         if(numResponse == 0){
@@ -134,6 +195,47 @@ public class Network {
         }
         return sum/numResponse;
     }
+    public double getMUDPAvrLoss(){
+        ArrayList<NetProtocol> protocols = new ArrayList<>();
+        for(Node n: nodes){
+            protocols.addAll(n.getProtocols());
+        }
+        double sum = 0;
+        int numResponse = 0;
+        for(NetProtocol np: protocols){
+            if (np.getClass() == MUDP.class) {
+                if (np.getPacketLoss() != -1) {
+                    sum += np.getPacketLoss();
+                    numResponse++;
+                }
+            }
+        }
+        if(numResponse == 0){
+            return 0;
+        }
+        return sum/numResponse;
+    }
+    public double getSUDPAvrLoss(){
+        ArrayList<NetProtocol> protocols = new ArrayList<>();
+        for(Node n: nodes){
+            protocols.addAll(n.getProtocols());
+        }
+        double sum = 0;
+        int numResponse = 0;
+        for(NetProtocol np: protocols){
+            if (np.getClass() == SUDP.class) {
+                if (np.getPacketLoss() != -1) {
+                    sum += np.getPacketLoss();
+                    numResponse++;
+                }
+            }
+        }
+        if(numResponse == 0){
+            return 0;
+        }
+        return sum/numResponse;
+    }
+
     public static void reset(){
         Node.reset();
         UDP.reset();
