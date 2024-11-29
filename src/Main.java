@@ -149,10 +149,5 @@ public class Main {
         System.out.println("average number of packets dropped = "+averagePacketsDropped);
         System.out.println("average number of packets sent = "+averagePacketsSent);
         System.out.println("average packet drop ratio = "+ (double) averagePacketsDropped/averagePacketsSent);
-
-
-
-
-
     }
 }

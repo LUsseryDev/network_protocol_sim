@@ -15,6 +15,7 @@ public class SUDP implements NetProtocol{
     private ArrayList<Packet> toSend;
     private int datasize;
     private ArrayList<Boolean> recived;
+    private static int lastCCUpdate = 0;
 
 
     public SUDP(int startTick){
@@ -88,13 +89,16 @@ public class SUDP implements NetProtocol{
                 ssthresh = cwnd/2;
                 cwnd = cwndinit;
                 t = true;
+                toSend.add(pt.packet);
+                pt.ticks_remaining = RTO;
                 break;
             }
         }
         //if no timeouts
+
         if (!t) {
             if (cwnd < ssthresh) {
-                cwnd *= 2;
+                cwnd *= 1.3;
             } else {
                 cwnd += 1;
             }
